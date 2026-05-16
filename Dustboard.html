@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Quick Ride</title>
+
+<!-- EXTERNAL CSS -->
+
+<link
+rel="stylesheet"
+href="Mrigankur/Quick-Ride/style.css">
+
+<!-- GOOGLE MAPS -->
+
+<script
+src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY">
+</script>
+
+</head>
+
+<body>
+
+<!-- ================= HEADER ================= -->
+
+<div class="header">
+
+  <div class="logoBox">
+
+    <!-- LOGO FIX: removed image, clean text logo -->
+    <div>
+      <div class="logo">
+        🚗 Quick Ride
+      </div>
+
+      <div class="sub">
+        Premium Car Rental
+      </div>
+    </div>
+
+  </div>
+
+  <!-- USER -->
+
+  <div
+    class="userBox"
+    onclick="openProfile()"
+    style="cursor:pointer;">
+
+    <img
+      id="userPhoto"
+      src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
+
+    <span id="userStatus">
+      Guest User
+    </span>
+
+  </div>
+
+</div>
+
+<!-- ================= SEARCH ================= -->
+
+<div class="searchArea">
+
+<input
+type="text"
+id="searchInput"
+placeholder="Search car or ask AI...">
+
+</div>
+
+<!-- ================= MAP ================= -->
+
+<div id="map"></div>
+
+<!-- ================= CARS ================= -->
+
+<div
+class="container"
+id="carContainer">
+
+</div>
+
+<!-- ================= HISTORY ================= -->
+
+<div class="history">
+
+<h2>
+📜 Booking History
+</h2>
+
+<div
+class="historyBox"
+id="historyBox">
+
+No booking yet 🚘
+
+</div>
+
+</div>
+
+<!-- ================= LOGIN POPUP ================= -->
+
+<div
+class="overlay"
+id="loginOverlay">
+
+<div class="popup">
+
+<h2>
+Login & Location
+</h2>
+
+<select id="manualLocation">
+
+<option value="">
+Select Location
+</option>
+
+<option value="Kolkata">
+Kolkata
+</option>
+
+<option value="Cooch Behar">
+Cooch Behar
+</option>
+
+<option value="Delhi">
+Delhi
+</option>
+
+<option value="Mumbai">
+Mumbai
+</option>
+
+</select>
+
+<button
+class="detectBtn"
+onclick="detectLocation()">
+
+📍 Detect My Location
+
+</button>
+
+<button
+class="loginBtn"
+onclick="fakeLogin()">
+
+Continue with Google
+
+</button>
+
+</div>
+
+</div>
+
+<!-- ================= PROFILE ================= -->
+
+<div
+class="overlay"
+id="profileOverlay"
+style="display:none;">
+
+<div class="popup">
+
+<h2>
+👤 User Profile
+</h2>
+
+<img
+id="profilePhoto"
+src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
+style="
+width:90px;
+height:90px;
+border-radius:50%;
+margin-top:10px;
+">
+
+<h3 id="profileName">
+Guest User
+</h3>
+
+<p id="profileEmail">
+No Email
+</p>
+
+<button
+class="detectBtn"
+onclick="closeProfile()">
+
+Close
+
+</button>
+
+</div>
+
+</div>
+
+<!-- ================= AI CHAT ================= -->
+
+<div id="aiChat">
+
+<div class="aiHeader">
+Quick Ride AI 🤖
+</div>
+
+<div id="aiMessages">
+
+<div class="aiMsg">
+👋 Welcome to Quick Ride AI
+</div>
+
+</div>
+
+<div class="aiInputArea">
+
+<input
+id="aiInput"
+placeholder="Ask AI...">
+
+<button onclick="sendAI()">
+Send
+</button>
+
+</div>
+
+</div>
+
+<!-- ================= SCRIPT ================= -->
+
+<script>
+
+/* ================= LOCATION ================= */
+
+let userLocation = {
+lat:22.5726,
+lng:88.3639
+};
+
+/* ================= MAP ================= */
+
+let map;
+let marker;
+
+function initMap(){
+
+map =
+new google.maps.Map(
+
+document.getElementById("map"),
+
+{
+zoom:13,
+center:userLocation
+}
+
+);
+
+marker =
+new google.maps.Marker({
+
+position:userLocation,
+map:map,
+title:"Quick Ride Driver"
+
+});
+
+setInterval(()=>{
+
+userLocation.lat +=
+(Math.random()-0.5)*0.001;
+
+userLocation.lng +=
+(Math.random()-0.5)*0.001;
+
+marker.setPosition(userLocation);
+map.panTo(userLocation);
+
+},3000);
+
+}
+
+window.onload = initMap;
+
+/* ================= LOGIN ================= */
+
+function fakeLogin(){
+
+document.getElementById("userStatus").innerText =
+"Mrigankur";
+
+document.getElementById("profileName").innerText =
+"Mrigankur";
+
+document.getElementById("profileEmail").innerText =
+"quickrideuser@gmail.com";
+
+document.getElementById("loginOverlay").style.display =
+"none";
+
+alert("✅ Login Successful");
+
+}
+
+/* ================= PROFILE ================= */
+
+function openProfile(){
+document.getElementById("profileOverlay").style.display="flex";
+}
+
+function closeProfile(){
+document.getElementById("profileOverlay").style.display="none";
+}
+
+/* ================= CAR DATA ================= */
+
+const cars = [
+{
+name:"BMW X5",
+price:"₹25/km",
+rating:"⭐ 4.9",
+image:"https://cdn.pixabay.com/photo/2016/11/29/03/53/automobile-1868726_1280.jpg"
+},
+{
+name:"Mercedes C-Class",
+price:"₹28/km",
+rating:"⭐ 4.8",
+image:"https://cdn.pixabay.com/photo/2017/03/27/14/56/car-2179220_1280.jpg"
+},
+{
+name:"Toyota Innova",
+price:"₹18/km",
+rating:"⭐ 4.7",
+image:"https://cdn.pixabay.com/photo/2012/05/29/00/43/car-49278_1280.jpg"
+},
+{
+name:"Audi A6",
+price:"₹24/km",
+rating:"⭐ 4.8",
+image:"https://cdn.pixabay.com/photo/2016/12/27/21/03/lamborghini-1930434_1280.jpg"
+}
+];
+
+/* ================= LOAD CARS ================= */
+
+const container =
+document.getElementById("carContainer");
+
+cars.forEach(car=>{
+
+container.innerHTML += `
+<div class="card">
+
+<img src="${car.image}">
+
+<div class="cardContent">
+
+<h3>${car.name}</h3>
+
+<div class="price">${car.price}</div>
+
+<div class="rating">${car.rating}</div>
+
+<button onclick="reserveCar('${car.name}')">
+Reserve Now
+</button>
+
+</div>
+
+</div>
+`;
+
+});
+
+/* ================= RESERVE ================= */
+
+function reserveCar(car){
+
+alert("🚗 Reserved: " + car);
+
+document.getElementById("historyBox").innerHTML += `
+<div>✅ ${car} booked successfully</div>
+`;
+
+}
+
+/* ================= SEARCH ================= */
+
+document.getElementById("searchInput").addEventListener("keyup",function(){
+
+let value=this.value.toLowerCase();
+
+let cards=document.querySelectorAll(".card");
+
+cards.forEach(card=>{
+
+card.style.display =
+card.innerText.toLowerCase().includes(value)
+? "block"
+: "none";
+
+});
+
+});
+
+/* ================= AI ================= */
+
+function sendAI(){
+
+let input=document.getElementById("aiInput");
+let text=input.value;
+if(!text) return;
+
+document.getElementById("aiMessages").innerHTML += `
+<div class="aiMsg">🧑 ${text}</div>
+`;
+
+input.value="";
+
+setTimeout(()=>{
+
+document.getElementById("aiMessages").innerHTML += `
+<div class="aiMsg">
+🚗 Suggested Cars: BMW X5, Mercedes C-Class
+</div>
+`;
+
+},1000);
+
+}
+
+</script>
+
+</body>
+</html>
