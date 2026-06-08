@@ -1,446 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QuickRide Premium</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <title>QuickRide Admin Panel</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
-    }
-
-    body {
-      background: linear-gradient(135deg, #020617, #0f172a, #111827);
-      color: white;
-      overflow-x: hidden;
-    }
-
-    /* ================= LOADER ================= */
-   .loader {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #020617;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 999999;
-      flex-direction: column;
-      transition: 0.7s;
-    }
-
-   .loader.hide {
-      opacity: 0;
-      visibility: hidden;
-    }
-
-   .carLoader {
-      font-size: 70px;
-      animation: carMove 1.2s infinite;
-    }
-
-    @keyframes carMove {
-      0% { transform: translateX(-30px); }
-      50% { transform: translateX(30px); }
-      100% { transform: translateX(-30px); }
-    }
-
-   .dots {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-   .dot {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: #10a37f;
-      animation: jump 0.6s infinite;
-    }
-
-   .dot:nth-child(2) { animation-delay: 0.2s; }
-   .dot:nth-child(3) { animation-delay: 0.4s; }
-
-    @keyframes jump {
-      0% { transform: translateY(0); opacity: 0.5; }
-      50% { transform: translateY(-15px); opacity: 1; }
-      100% { transform: translateY(0); opacity: 0.5; }
-    }
-
-    /* ================= HEADER ================= */
-   .header {
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      background: rgba(15, 23, 42, 0.7);
-      backdrop-filter: blur(15px);
-      padding: 16px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid rgba(16, 163, 127, 0.2);
-    }
-
-   .logo {
-      font-size: 28px;
-      font-weight: 800;
-      background: linear-gradient(135deg, white, #10a37f);
-      -webkit-background-clip: text;
-      color: transparent;
-    }
-
-   .headerBtns {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-   .addCarBtn {
-      background: #10a37f;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 20px;
-      color: white;
-      font-weight: 600;
-      cursor: pointer;
-      display: none;
-    }
-
-   .userBox {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: rgba(30, 41, 59, 0.8);
-      padding: 8px 14px;
-      border-radius: 50px;
-      cursor: pointer;
-      border: 1px solid rgba(16, 163, 127, 0.3);
-    }
-
-   .userBox img {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      border: 2px solid #10a37f;
-    }
-
-    /* ================= MAP ================= */
-    #map {
-      height: 250px;
-      margin: 20px;
-      border-radius: 25px;
-      overflow: hidden;
-      border: 2px solid rgba(16, 163, 127, 0.3);
-    }
-
-    /* ================= SEARCH ================= */
-   .searchArea {
-      padding: 0 20px 20px;
-      display: flex;
-      gap: 12px;
-    }
-
-   .searchArea input {
-      flex: 1;
-      padding: 14px 18px;
-      border: none;
-      outline: none;
-      border-radius: 40px;
-      background: #1e293b;
-      color: white;
-      font-size: 15px;
-    }
-
-    /* ================= CARS ================= */
-   .container {
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: Arial, sans-serif; 
+      background: #f5f5f5; 
       padding: 20px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 25px;
-      padding-bottom: 120px;
     }
-
-   .card {
-      background: linear-gradient(145deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
-      border-radius: 28px;
-      overflow: hidden;
-      border: 1px solid rgba(16, 163, 127, 0.2);
-      transition: 0.4s;
+    .container { 
+      max-width: 600px; 
+      margin: 0 auto; 
+      background: white; 
+      padding: 30px; 
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
-
-   .card:hover {
-      transform: translateY(-8px);
-      border-color: #10a37f;
-    }
-
-   .card img {
-      width: 100%;
-      height: 190px;
-      object-fit: cover;
-    }
-
-   .cardContent {
-      padding: 18px;
-    }
-
-   .card h3 {
-      font-size: 22px;
-      margin-bottom: 8px;
-    }
-
-   .price {
-      color: #2dd4bf;
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-
-   .rating {
-      color: #facc15;
-      margin-bottom: 14px;
-    }
-
-   .reserveBtn {
-      width: 100%;
-      padding: 13px;
+    h1 { margin-bottom: 20px; color: #333; }
+    button {
+      padding: 12px 20px;
       border: none;
-      border-radius: 40px;
-      background: linear-gradient(135deg, #10a37f, #0d8a6b);
-      color: white;
-      font-weight: 700;
+      border-radius: 8px;
       cursor: pointer;
+      font-size: 16px;
+      margin: 5px;
     }
-
-    /* ================= HISTORY ================= */
-   .history {
-      padding: 20px;
-      padding-bottom: 120px;
+    #loginBtn { background: #4285F4; color: white; }
+    #logoutBtn { background: #DB4437; color: white; }
+    #addCarBtn { background: #0F9D58; color: white; display: none; }
+    button:hover { opacity: 0.9; }
+    #userInfo { 
+      margin: 20px 0; 
+      padding: 15px; 
+      background: #e8f0fe; 
+      border-radius: 8px;
     }
-
-   .history h2 {
-      margin-bottom: 15px;
-    }
-
-   .historyBox {
-      background: rgba(30, 41, 59, 0.7);
-      padding: 20px;
-      border-radius: 25px;
-    }
-
-   .booking {
-      background: rgba(16, 163, 127, 0.1);
-      padding: 12px;
-      border-radius: 15px;
-      margin-bottom: 10px;
-    }
-
-    /* ================= OVERLAY ================= */
-   .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.9);
-      backdrop-filter: blur(10px);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 99999;
-    }
-
-   .popup {
-      width: 90%;
-      max-width: 400px;
-      background: linear-gradient(135deg, #1e293b, #0f172a);
-      padding: 30px;
-      border-radius: 35px;
-      text-align: center;
-      border: 1px solid rgba(16, 163, 127, 0.3);
-    }
-
-   .popup h2 {
-      margin-bottom: 20px;
-    }
-
-   .popup input {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      outline: none;
-      border-radius: 30px;
-      background: #111827;
-      color: white;
-      margin-bottom: 15px;
-    }
-
-   .popup button {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 35px;
-      font-weight: 700;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-   .googleBtn {
-      background: white;
-      color: black;
-    }
-
-   .closeBtn {
-      background: #dc2626;
-      color: white;
-    }
-
-    /* ================= BOTTOM BAR ================= */
-   .bottomBar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background: rgba(15, 23, 42, 0.95);
-      backdrop-filter: blur(15px);
-      display: flex;
-      justify-content: space-around;
-      padding: 14px 0;
-      border-top: 1px solid rgba(16, 163, 127, 0.2);
-      z-index: 1000;
-    }
-
-   .navItem {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 5px;
-      font-size: 13px;
-      color: #94a3b8;
-      cursor: pointer;
-    }
-
-   .navItem.active {
-      color: #10a37f;
-    }
-
-   .loadingText {
-      text-align: center;
-      padding: 40px;
-      color: #94a3b8;
+    #carList { margin-top: 20px; }
+    .car-item {
+      padding: 10px;
+      background: #fafafa;
+      margin: 8px 0;
+      border-radius: 6px;
+      border-left: 4px solid #0F9D58;
     }
   </style>
-  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY"></script>
 </head>
-
 <body>
 
-  <!-- ================= LOADER ================= -->
-  <div class="loader" id="loader">
-    <div class="carLoader">🏎️</div>
-    <div class="dots">
-      <div class="dot"></div>
-      <div class="dot"></div>
-      <div class="dot"></div>
+  <div class="container">
+    <h1>QuickRide Admin Panel</h1>
+    
+    <div id="userInfo">Login কর ভাই</div>
+    
+    <button id="loginBtn">Login with Google</button>
+    <button id="logoutBtn" style="display:none">Logout</button>
+    <button id="addCarBtn">+ Add Car</button>
+
+    <div id="carList">
+      <h3>সব গাড়ি:</h3>
+      <div id="cars"></div>
     </div>
   </div>
 
-  <!-- ================= HEADER ================= -->
-  <div class="header">
-    <div class="logo">⚡ QUICKRIDE</div>
-    <div class="headerBtns">
-      <button class="addCarBtn" id="addCarBtn" onclick="openAddCar()">+ Add Car</button>
-      <div class="userBox" onclick="openProfile()">
-        <img id="userPhoto" src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
-        <span id="userStatus">Guest</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= MAP ================= -->
-  <div id="map"></div>
-
-  <!-- ================= SEARCH ================= -->
-  <div class="searchArea">
-    <input type="text" id="searchInput" placeholder="Search cars...">
-  </div>
-
-  <!-- ================= CARS ================= -->
-  <div class="container" id="carContainer">
-    <div class="loadingText">Loading cars...</div>
-  </div>
-
-  <!-- ================= HISTORY ================= -->
-  <div class="history">
-    <h2>📜 Booking History</h2>
-    <div class="historyBox" id="historyBox">No bookings yet</div>
-  </div>
-
-  <!-- ================= LOGIN OVERLAY ================= -->
-  <div class="overlay" id="loginOverlay">
-    <div class="popup">
-      <h2>🚀 Sign In</h2>
-      <button class="googleBtn" onclick="googleLogin()">Continue With Google</button>
-      <button class="closeBtn" onclick="skipLogin()">Continue As Guest</button>
-    </div>
-  </div>
-
-  <!-- ================= LOCATION OVERLAY ================= -->
-  <div class="overlay" id="locationOverlay">
-    <div class="popup">
-      <h2>📍 Pickup Location</h2>
-      <input id="locationInput" placeholder="Enter location">
-      <button class="googleBtn" onclick="saveLocation()">Save Location</button>
-    </div>
-  </div>
-
-  <!-- ================= PROFILE ================= -->
-  <div class="overlay" id="profileOverlay">
-    <div class="popup">
-      <img id="profilePhoto" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" style="width:90px; height:90px; border-radius:50%; margin-bottom:15px;">
-      <h2 id="profileName">Guest</h2>
-      <p id="profileEmail">No email</p>
-      <button class="googleBtn" onclick="logoutUser()">Logout</button>
-      <button class="closeBtn" onclick="closeProfile()">Close</button>
-    </div>
-  </div>
-
-  <!-- ================= ADD CAR OVERLAY ================= -->
-  <div class="overlay" id="addCarOverlay">
-    <div class="popup">
-      <h2>➕ Add New Car</h2>
-      <input id="carName" placeholder="Car Name - e.g: BMW X5">
-      <input id="carPrice" placeholder="Price - e.g: ₹25/km">
-      <input id="carRating" placeholder="Rating - e.g: ⭐ 4.9">
-      <input id="carImage" placeholder="Image URL">
-      <button class="googleBtn" onclick="addNewCar()">Add Car</button>
-      <button class="closeBtn" onclick="closeAddCar()">Cancel</button>
-    </div>
-  </div>
-
-  <!-- ================= BOTTOM BAR ================= -->
-  <div class="bottomBar">
-    <div class="navItem active">🏠<span>Home</span></div>
-    <div class="navItem">🚘<span>Reserve</span></div>
-    <div class="navItem">📜<span>History</span></div>
-    <div class="navItem">📦<span>Booking</span></div>
-    <div class="navItem" onclick="openProfile()">👤<span>My Account</span></div>
-  </div>
-
-  <!-- ================= FIREBASE ================= -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
-    import { getDatabase, ref, onValue, push, set } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
+    // Import Firebase SDK v9 Modular
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-    /* ================= FIREBASE CONFIG ================= */
+    // 1. তোর Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyBySOEfSbkpl4csyqckfX-kLeIoD-85VYs",
       authDomain: "my-friend-hub.firebaseapp.com",
@@ -452,210 +84,95 @@
       measurementId: "G-6E10B7M7WZ"
     };
 
+    // 2. Initialize Firebase
     const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
     const auth = getAuth(app);
-    const db = getDatabase(app);
+    const database = getDatabase(app);
 
-    /* ================= GLOBAL VARS ================= */
-    let currentUser = null;
-    const container = document.getElementById("carContainer");
+    // 3. Admin Email List - নতুন admin add করতে চাইলে এখানে email দে
+    const adminEmails = ["khasbaskhalisa@gmail.com", "joyrup@gmail.com"];
 
-    /* ================= AUTH STATE CHECK ================= */
-    onAuthStateChanged(auth, (user) => {
-      currentUser = user;
-      if (user) {
-        document.getElementById("userStatus").innerText = user.displayName;
-        document.getElementById("userPhoto").src = user.photoURL;
-        document.getElementById("profilePhoto").src = user.photoURL;
-        document.getElementById("profileName").innerText = user.displayName;
-        document.getElementById("profileEmail").innerText = user.email;
-        document.getElementById("loginOverlay").style.display = "none";
+    // 4. HTML Elements
+    const loginBtn = document.getElementById("loginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const addCarBtn = document.getElementById("addCarBtn");
+    const userInfo = document.getElementById("userInfo");
+    const carsDiv = document.getElementById("cars");
 
-        // শুধু khasbaskhalisa@gmail.com Add Car বাটন দেখবে
-        if (user.email === "khasbaskhalisa@gmail.com") {
-          document.getElementById("addCarBtn").style.display = "block";
-        }
-      } else {
-        document.getElementById("addCarBtn").style.display = "none";
+    // 5. Login
+    loginBtn.onclick = () => {
+      const provider = new GoogleAuthProvider();
+      signInWithPopup(auth, provider).catch(err => alert(err.message));
+    };
+
+    // 6. Logout
+    logoutBtn.onclick = () => signOut(auth);
+
+    // 7. Add Car
+    addCarBtn.onclick = () => {
+      const carName = prompt("গাড়ির নাম লিখ:");
+      const carNumber = prompt("গাড়ির নম্বর লিখ:");
+      if (carName && carNumber) {
+        push(ref(database, 'cars'), {
+          name: carName,
+          number: carNumber,
+          addedBy: auth.currentUser.email,
+          time: Date.now()
+        }).then(() => {
+          alert("গাড়ি Add হয়ে গেছে!");
+        }).catch(err => {
+          alert("Error: " + err.message);
+        });
       }
-      loadCarsFromFirebase();
+    };
+
+    // 8. Auth State Change
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loginBtn.style.display = "none";
+        logoutBtn.style.display = "inline-block";
+        userInfo.innerHTML = `Logged in as: <b>${user.email}</b>`;
+        
+        // Admin Check
+        if (adminEmails.includes(user.email)) {
+          addCarBtn.style.display = "inline-block";
+          userInfo.innerHTML += " <span style='color:green'>(Admin)</span>";
+        } else {
+          addCarBtn.style.display = "none";
+          userInfo.innerHTML += " <span style='color:orange'>(User)</span>";
+        }
+        
+        loadCars();
+      } else {
+        loginBtn.style.display = "inline-block";
+        logoutBtn.style.display = "none";
+        addCarBtn.style.display = "none";
+        userInfo.innerText = "Login কর ভাই";
+        carsDiv.innerHTML = "";
+      }
     });
 
-    /* ================= LOAD CARS FROM FIREBASE ================= */
-    function loadCarsFromFirebase() {
-      const carsRef = ref(db, 'cars');
-      onValue(carsRef, (snapshot) => {
+    // 9. সব গাড়ি Load করা
+    function loadCars() {
+      onValue(ref(database, 'cars'), (snapshot) => {
+        carsDiv.innerHTML = "";
         const data = snapshot.val();
-        container.innerHTML = '';
         if (data) {
-          Object.keys(data).forEach(key => {
-            const car = data[key];
-            container.innerHTML += `
-              <div class="card">
-                <img src="${car.image || 'https://cdn.pixabay.com/photo/2016/11/29/03/53/automobile-1868726_1280.jpg'}">
-                <div class="cardContent">
-                  <h3>${car.name}</h3>
-                  <div class="price">${car.price}</div>
-                  <div class="rating">${car.rating || '⭐ 4.5'}</div>
-                  <button class="reserveBtn" onclick="reserveCar('${car.name}')">Reserve Now</button>
-                </div>
+          Object.values(data).reverse().forEach(car => {
+            carsDiv.innerHTML += `
+              <div class="car-item">
+                <b>${car.name}</b> - ${car.number} <br>
+                <small>Added by: ${car.addedBy}</small>
               </div>
             `;
           });
         } else {
-          container.innerHTML = '<div class="loadingText">No cars available. Add some!</div>';
+          carsDiv.innerHTML = "<p>কোনো গাড়ি নাই এখনো</p>";
         }
       });
-    }
-
-    /* ================= ADD CAR TO FIREBASE ================= */
-    window.addNewCar = function() {
-      if (!currentUser) {
-        alert("আগে লগিন কর ভাই");
-        return;
-      }
-
-      const name = document.getElementById("carName").value;
-      const price = document.getElementById("carPrice").value;
-      const rating = document.getElementById("carRating").value;
-      const image = document.getElementById("carImage").value;
-
-      if (!name ||!price) {
-        alert("Name আর Price লাগবেই");
-        return;
-      }
-
-      const newCar = {
-        name: name,
-        price: price,
-        rating: rating || "⭐ 4.5",
-        image: image || "https://cdn.pixabay.com/photo/2016/11/29/03/53/automobile-1868726_1280.jpg",
-        addedBy: currentUser.email,
-        timestamp: Date.now()
-      };
-
-      const carsRef = ref(db, 'cars');
-      const newCarRef = push(carsRef);
-      set(newCarRef, newCar).then(() => {
-        alert("✅ Car Added Successfully");
-        closeAddCar();
-        // Input ক্লিয়ার কর
-        document.getElementById("carName").value = "";
-        document.getElementById("carPrice").value = "";
-        document.getElementById("carRating").value = "";
-        document.getElementById("carImage").value = "";
-      }).catch((err) => {
-        alert("Error: " + err.message);
-      });
-    }
-
-    /* ================= LOGIN ================= */
-    window.googleLogin = async function() {
-      try {
-        const result = await signInWithPopup(auth, new GoogleAuthProvider());
-        localStorage.setItem("userName", result.user.displayName);
-        localStorage.setItem("userPhoto", result.user.photoURL);
-        localStorage.setItem("userEmail", result.user.email);
-        document.getElementById("locationOverlay").style.display = "flex";
-        alert("✅ Login Successful");
-      } catch (err) {
-        alert(err.message);
-      }
-    }
-
-    /* ================= LOGOUT ================= */
-    window.logoutUser = async function() {
-      await signOut(auth);
-      localStorage.clear();
-      location.reload();
-    }
-  </script>
-
-  <!-- ================= NORMAL JS ================= -->
-  <script>
-    /* ================= LOADER ================= */
-    window.onload = () => {
-      setTimeout(() => {
-        document.getElementById("loader").classList.add("hide");
-        if (!localStorage.getItem("userEmail")) {
-          document.getElementById("loginOverlay").style.display = "flex";
-        }
-      }, 2500);
-    }
-
-    /* ================= LOCATION ================= */
-    function saveLocation() {
-      const loc = document.getElementById("locationInput").value;
-      localStorage.setItem("userLocation", loc);
-      document.getElementById("locationOverlay").style.display = "none";
-      alert("📍 Location Saved");
-    }
-
-    /* ================= PROFILE ================= */
-    function openProfile() {
-      document.getElementById("profileOverlay").style.display = "flex";
-    }
-
-    function closeProfile() {
-      document.getElementById("profileOverlay").style.display = "none";
-    }
-
-    /* ================= GUEST ================= */
-    function skipLogin() {
-      document.getElementById("loginOverlay").style.display = "none";
-    }
-
-    /* ================= ADD CAR OVERLAY ================= */
-    function openAddCar() {
-      document.getElementById("addCarOverlay").style.display = "flex";
-    }
-
-    function closeAddCar() {
-      document.getElementById("addCarOverlay").style.display = "none";
-    }
-
-    /* ================= MAP ================= */
-    let map;
-    function initMap() {
-      map = new google.maps.Map(document.getElementById("map"), {
-        zoom: 13,
-        center: { lat: 22.5726, lng: 88.3639 }
-      });
-      new google.maps.Marker({
-        position: { lat: 22.5726, lng: 88.3639 },
-        map: map,
-        title: "QuickRide"
-      });
-    }
-    initMap();
-
-    /* ================= RESERVE ================= */
-    function reserveCar(car) {
-      document.getElementById("historyBox").innerHTML += `
-        <div class="booking">✅ ${car} booked</div>
-      `;
-      alert("🚘 Reserved: " + car);
-    }
-
-    /* ================= SEARCH ================= */
-    document.getElementById("searchInput").addEventListener("keyup", function() {
-      let value = this.value.toLowerCase();
-      let cards = document.querySelectorAll(".card");
-      cards.forEach(card => {
-        let text = card.innerText.toLowerCase();
-        card.style.display = text.includes(value)? "block" : "none";
-      });
-    });
-
-    /* ================= RESTORE ================= */
-    if (localStorage.getItem("userName")) {
-      document.getElementById("userStatus").innerText = localStorage.getItem("userName");
-      document.getElementById("userPhoto").src = localStorage.getItem("userPhoto");
-      document.getElementById("profilePhoto").src = localStorage.getItem("userPhoto");
-      document.getElementById("profileName").innerText = localStorage.getItem("userName");
-      document.getElementById("profileEmail").innerText = localStorage.getItem("userEmail");
     }
   </script>
 
 </body>
-</html>dyddydy
+</html>
