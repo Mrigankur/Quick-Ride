@@ -102,7 +102,7 @@
       }
     });
 
-    function login() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
+    function login() { auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider()); }
     function logout() { auth.signOut(); }
 
     function setupRecaptcha() {
