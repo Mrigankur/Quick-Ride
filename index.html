@@ -1,240 +1,389 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>MyFriendHub - Book Ride</title>
+  <title>QuickRide - Book Your Car</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; font-family:Arial; }
-    #map { height:100vh; width:100%; }
-    .panel { position:absolute; top:10px; left:50%; transform:translateX(-50%); background:white; padding:15px; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,0.3); width:90%; max-width:400px; z-index:1000; }
-    input, select { width:100%; padding:10px; margin:5px 0; border:1px solid #ddd; border-radius:4px; }
-    button { width:100%; padding:12px; background:#4285f4; color:white; border:none; border-radius:4px; font-size:16px; margin-top:10px; cursor:pointer; }
-    button:disabled { background:#ccc; }
-    #status { margin-top:10px; font-weight:bold; text-align:center; }
-    .login-btn { background:#db4437; }
-    .suggestions { background:white; border:1px solid #ddd; max-height:250px; overflow-y:auto; position:absolute; width:calc(100% - 30px); z-index:1001; box-shadow:0 2px 5px rgba(0,0,0,0.2); }
-    .suggestions div { padding:10px; cursor:pointer; border-bottom:1px solid #f0f0f0; }
-    .suggestions div:hover { background:#f0f0f0; }
-    .section { margin:10px 0; padding:10px; background:#f9f9f9; border-radius:4px; }
-    #recaptcha-container { margin:10px 0; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: white; min-height: 100vh;
+    }
+
+    /* Loader */
+    .loader {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #0f172a; display: flex; justify-content: center; align-items: center;
+      z-index: 999999; transition: opacity 0.5s;
+    }
+    .loaderCar { font-size: 60px; animation: drive 1.5s infinite linear; }
+    @keyframes drive { 0% { transform: translateX(-100px); } 100% { transform: translateX(100px); } }
+
+    /* Login + Phone + Location Box */
+    .loginBox { 
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.95); display: flex; justify-content: center; align-items: center; z-index: 99999;
+    }
+    .loginCard {
+      background: linear-gradient(135deg, #1e293b, #0f172a); padding: 30px; border-radius: 28px;
+      text-align: center; border: 1px solid rgba(16, 163, 127, 0.3); max-width: 400px; width: 90%;
+      animation: slideUp 0.4s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .loginCard h2 { margin-bottom: 15px; }
+    .loginCard p { color: #94a3b8; font-size: 14px; margin-bottom: 20px; }
+    .loginCard input {
+      width: 100%; padding: 14px; margin: 10px 0; border-radius: 12px; border: none;
+      background: #111827; color: white; font-size: 15px; outline: none;
+    }
+    .loginCard input:focus { box-shadow: 0 0 0 2px #10a37f; }
+    .googleBtn { 
+      background: white; color: black; width: 100%; padding: 14px; border: none; 
+      border-radius: 35px; font-weight: 700; cursor: pointer; margin: 10px 0; font-size: 16px; 
+      transition: 0.3s; position: relative; overflow: hidden;
+    }
+    .googleBtn:active { transform: scale(0.96); }
+    .googleBtn::after {
+      content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0;
+      border-radius: 50%; background: rgba(0,0,0,0.2); transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+    .googleBtn:active::after { width: 300px; height: 300px; }
+    #otpBox { animation: fadeIn 0.3s ease; display: none; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* Header */
+    .header {
+      background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(20px);
+      padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; 
+      position: sticky; top: 0; z-index: 100; animation: slideDown 0.5s ease;
+    }
+    @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+    .userInfo { display: flex; align-items: center; gap: 10px; }
+    .userInfo img { width: 35px; height: 35px; border-radius: 50%; }
+    .logoutBtn { background: #ef4444; border: none; padding: 8px 16px; border-radius: 20px; color: white; cursor: pointer; font-size: 13px; }
+
+    /* Cars Grid */
+    .carsGrid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px; padding: 20px; max-width: 1200px; margin: 0 auto;
+      animation: fadeInUp 0.6s ease;
+    }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .carCard {
+      background: #1e293b; border-radius: 20px; overflow: hidden; transition: 0.4s;
+      animation: popIn 0.5s ease backwards;
+    }
+    .carCard:nth-child(1) { animation-delay: 0.1s; }
+    .carCard:nth-child(2) { animation-delay: 0.2s; }
+    .carCard:nth-child(3) { animation-delay: 0.3s; }
+    .carCard:nth-child(4) { animation-delay: 0.4s; }
+    .carCard:nth-child(5) { animation-delay: 0.5s; }
+    .carCard:nth-child(6) { animation-delay: 0.6s; }
+    @keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    
+    .carCard:hover { 
+      transform: translateY(-12px) scale(1.02); 
+      box-shadow: 0 20px 40px rgba(16, 163, 127, 0.4);
+    }
+    .carImg { width: 100%; height: 200px; object-fit: cover; transition: 0.6s; }
+    .carCard:hover .carImg { animation: panoramaZoom 4s linear infinite alternate; }
+    @keyframes panoramaZoom {
+      0% { object-position: 0% 50%; transform: scale(1); }
+      100% { object-position: 100% 50%; transform: scale(1.1); }
+    }
+    .carInfo { padding: 15px; }
+    .carPrice { color: #10a37f; font-size: 20px; font-weight: 700; margin: 8px 0; }
+    .carMeta { display: flex; gap: 15px; color: #94a3b8; font-size: 14px; margin: 10px 0; flex-wrap: wrap; }
+    .reserveBtn { 
+      background: #10a37f; color: white; width: 100%; padding: 12px; border: none; 
+      border-radius: 12px; font-weight: 700; cursor: pointer; margin-top: 10px; 
+      transition: 0.3s; position: relative; overflow: hidden;
+    }
+    .reserveBtn:active { transform: scale(0.95); }
+    .reserveBtn::after {
+      content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0;
+      border-radius: 50%; background: rgba(255,255,255,0.5); transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+    .reserveBtn:active::after { width: 300px; height: 300px; }
+    .reserveBtn:disabled { background: #475569; cursor: not-allowed; }
+
+    /* My Bookings */
+    .myBookings { padding: 20px; max-width: 1200px; margin: 0 auto; }
+    .bookingCard { 
+      background: #1e293b; padding: 15px; border-radius: 15px; margin: 10px 0; 
+      display: flex; justify-content: space-between; align-items: center;
+      animation: slideInRight 0.4s ease;
+    }
+    @keyframes slideInRight { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
+    .status { padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+    .pending { background: #f59e0b; } 
+    .confirmed { background: #10a37f; animation: pulse 2s infinite; } 
+    .cancelled { background: #ef4444; }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(16, 163, 127, 0.7); }
+      50% { box-shadow: 0 0 0 8px rgba(16, 163, 127, 0); }
+    }
   </style>
 </head>
 <body>
-  <div id="map"></div>
-  
-  <div class="panel" id="loginPanel">
-    <h3>Login to Continue</h3>
-    <button class="login-btn" onclick="login()">Login with Google</button>
+
+  <!-- Loader -->
+  <div class="loader" id="loader"><div class="loaderCar">🚗</div></div>
+
+  <!-- Google Login -->
+  <div class="loginBox" id="loginBox">
+    <div class="loginCard">
+      <h2>🔐 Welcome to QuickRide</h2>
+      <p>Book cars instantly with Google</p>
+      <button class="googleBtn" onclick="userLogin()">Continue With Google</button>
+    </div>
   </div>
 
-  <div class="panel" id="phonePanel" style="display:none">
-    <h3>Verify Phone Number</h3>
-    <input id="phoneNumber" placeholder="+91 9876543210" value="+91">
-    <div id="recaptcha-container"></div>
-    <button onclick="sendOTP()">Send OTP</button>
-    <input id="otpCode" placeholder="Enter OTP" style="display:none">
-    <button id="verifyBtn" onclick="verifyOTP()" style="display:none">Verify OTP</button>
-    <div id="phoneStatus"></div>
+  <!-- Phone Verify -->
+  <div class="loginBox" id="phoneBox" style="display:none;">
+    <div class="loginCard">
+      <h2>📱 Phone Verify কর</h2>
+      <p>Booking এর জন্য Phone Verify Must</p>
+      <input type="text" id="phoneNumber" placeholder="+91 9876543210" maxlength="13">
+      <div id="recaptcha-container"></div>
+      <button class="googleBtn" onclick="sendOTP()">Send OTP</button>
+      <div id="otpBox">
+        <input type="text" id="otpCode" placeholder="6 Digit OTP" maxlength="6">
+        <button class="googleBtn" onclick="verifyOTP()">Verify OTP</button>
+      </div>
+    </div>
   </div>
 
-  <div class="panel" id="bookingPanel" style="display:none">
-    <h3>Book Your Ride</h3>
-    <div class="section">
-      <b>Your Details</b>
-      <input id="userName" placeholder="Full Name">
-      <input id="userPhone" placeholder="Phone" disabled>
+  <!-- Location Modal -->
+  <div class="loginBox" id="locationBox" style="display:none;">
+    <div class="loginCard">
+      <h2>📍 Pickup Location</h2>
+      <p>কোথা থেকে Car নিবি?</p>
+      <input type="text" id="pickupLocation" placeholder="Kolkata, Park Street">
+      <input type="text" id="dropLocation" placeholder="Airport Drop Location">
+      <button class="googleBtn" onclick="confirmLocation()">Confirm Location</button>
     </div>
-    <div class="section">
-      <b>Select Car</b>
-      <select id="carSelect"><option value="">Loading cars...</option></select>
-    </div>
-    <div class="section">
-      <b>Journey Details</b>
-      <input id="pickup" placeholder="Pickup Location" autocomplete="off">
-      <div id="pickupSuggest" class="suggestions"></div>
-      <input id="drop" placeholder="Drop Location" autocomplete="off">
-      <div id="dropSuggest" class="suggestions"></div>
-    </div>
-    <button id="bookBtn" onclick="bookRide()">Book Now</button>
-    <div id="status"></div>
-    <button onclick="logout()" style="background:#666;margin-top:5px">Logout</button>
   </div>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script>
+  <!-- Main App -->
+  <div id="mainApp" style="display:none;">
+    <div class="header">
+      <h2>🚗 QuickRide</h2>
+      <div class="userInfo">
+        <img id="userPhoto" src="">
+        <div>
+          <div id="userName" style="font-size:14px;"></div>
+          <button class="logoutBtn" onclick="userLogout()">Logout</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="carsGrid" id="carsGrid"></div>
+
+    <div class="myBookings">
+      <h3>📋 My Bookings</h3>
+      <div id="myBookingsList"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, RecaptchaVerifier, signInWithPhoneNumber, signOut } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+    import { getDatabase, ref, set, get, push, onValue } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
+
     const firebaseConfig = {
-      apiKey: "AIzaSyBbmHhNYPFLMgeCkMj07YoUdtM2bvD8-9o",
+      apiKey: "AIzaSyBySOEfSbkpl4csyqckfX-kLeIoD-85VYs",
       authDomain: "my-friend-hub.firebaseapp.com",
-      databaseURL: "https://my-friend-hub-default-rtdb.firebaseio.com",
+      databaseURL: "https://my-friend-hub-default-rtdb.asia-southeast1.firebasestorage.app",
       projectId: "my-friend-hub",
       storageBucket: "my-friend-hub.firebasestorage.app",
-      messagingSenderId: "1052688727503",
-      appId: "1:1052688727503:web:0a39c289e8b17966b4a6ee"
+      messagingSenderId: "1084141933087",
+      appId: "1:1084141933087:web:1ae757acdd37a9c8427b2a"
     };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    const auth = firebase.auth();
-    let map, pickupData, dropData, routeControl, confirmationResult, currentUser;
 
-    auth.onAuthStateChanged(async user => {
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    let confirmationResult;
+    let selectedCarId = '';
+    let selectedCarName = '';
+
+    // Toast Function
+    function showToast(msg, type = 'success') {
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed; top: 80px; right: 20px; background: ${type === 'success' ? '#10a37f' : '#ef4444'};
+        color: white; padding: 15px 25px; border-radius: 12px; font-weight: 600; z-index: 999999;
+        animation: toastIn 0.4s ease, toastOut 0.4s ease 2.5s forwards;
+      `;
+      toast.textContent = msg;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes toastIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+      @keyframes toastOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(400px); opacity: 0; } }
+    `;
+    document.head.appendChild(style);
+
+    // Loader
+    window.onload = () => {
+      setTimeout(() => {
+        document.getElementById("loader").style.opacity = "0";
+        setTimeout(() => document.getElementById("loader").style.display = "none", 500);
+      }, 2000);
+    }
+
+    // Google Login
+    window.userLogin = async () => {
+      try { await signInWithPopup(auth, new GoogleAuthProvider()); } 
+      catch (err) { showToast("Login Error: " + err.message, 'error'); }
+    }
+
+    // Logout
+    window.userLogout = () => { signOut(auth); }
+
+    // Auth Check
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
-        currentUser = user;
-        const userSnap = await db.ref('users/' + user.uid).once('value');
-        const userData = userSnap.val();
-        if (!userData || !userData.phoneVerified) {
-          document.getElementById('loginPanel').style.display = 'none';
-          document.getElementById('phonePanel').style.display = 'block';
-          document.getElementById('bookingPanel').style.display = 'none';
-          setupRecaptcha();
+        document.getElementById("loginBox").style.display = "none";
+        document.getElementById("userName").textContent = user.displayName;
+        document.getElementById("userPhoto").src = user.photoURL;
+        
+        const phoneSnap = await get(ref(db, 'users/' + user.uid + '/phoneVerified'));
+        if (phoneSnap.exists() && phoneSnap.val() === true) {
+          document.getElementById("phoneBox").style.display = "none";
+          document.getElementById("mainApp").style.display = "block";
+          loadCars();
+          loadMyBookings(user.uid);
         } else {
-          showBookingPanel(userData);
+          document.getElementById("phoneBox").style.display = "flex";
         }
       } else {
-        document.getElementById('loginPanel').style.display = 'block';
-        document.getElementById('phonePanel').style.display = 'none';
-        document.getElementById('bookingPanel').style.display = 'none';
+        document.getElementById("loginBox").style.display = "flex";
+        document.getElementById("mainApp").style.display = "none";
       }
     });
 
-    function login() { auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider()); }
-    function logout() { auth.signOut(); }
-
-    function setupRecaptcha() {
-      window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {'size': 'normal'});
-      recaptchaVerifier.render();
+    // Send OTP
+    window.sendOTP = () => {
+      const phone = document.getElementById("phoneNumber").value;
+      if (!phone.startsWith('+91') || phone.length != 13) return showToast("+91 দিয়ে 10 Digit নাম্বার দে", 'error');
+      
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', { 'size': 'invisible' });
+      signInWithPhoneNumber(auth, phone, window.recaptchaVerifier)
+        .then((result) => {
+          confirmationResult = result;
+          document.getElementById("otpBox").style.display = "block";
+          showToast("OTP পাঠানো হয়েছে!");
+        }).catch((err) => showToast("Error: " + err.message, 'error'));
     }
 
-    async function sendOTP() {
-      const phoneNumber = document.getElementById('phoneNumber').value;
-      if (!phoneNumber || phoneNumber.length < 13) return alert('Valid phone number দে +91 সহ');
-      document.getElementById('phoneStatus').innerText = 'Sending OTP...';
-      try {
-        confirmationResult = await auth.signInWithPhoneNumber(phoneNumber, window.recaptchaVerifier);
-        document.getElementById('otpCode').style.display = 'block';
-        document.getElementById('verifyBtn').style.display = 'block';
-        document.getElementById('phoneStatus').innerText = 'OTP পাঠানো হয়েছে';
-      } catch (error) {
-        document.getElementById('phoneStatus').innerText = 'Error: ' + error.message;
-      }
-    }
-
-    async function verifyOTP() {
-      const code = document.getElementById('otpCode').value;
-      try {
-        await confirmationResult.confirm(code);
-        await db.ref('users/' + currentUser.uid).set({
-          name: currentUser.displayName, email: currentUser.email,
-          phone: document.getElementById('phoneNumber').value, phoneVerified: true,
-          createdAt: firebase.database.ServerValue.TIMESTAMP
+    // Verify OTP
+    window.verifyOTP = () => {
+      const code = document.getElementById("otpCode").value;
+      if (code.length != 6) return showToast("6 Digit OTP দে", 'error');
+      
+      confirmationResult.confirm(code).then((result) => {
+        const user = auth.currentUser;
+        set(ref(db, 'users/' + user.uid), {
+          name: user.displayName, email: user.email, phone: result.user.phoneNumber,
+          phoneVerified: true, timestamp: Date.now()
         });
-        const userSnap = await db.ref('users/' + currentUser.uid).once('value');
-        showBookingPanel(userSnap.val());
-      } catch (error) {
-        document.getElementById('phoneStatus').innerText = 'Invalid OTP';
-      }
+        showToast("✅ Phone Verified!");
+        document.getElementById("phoneBox").style.display = "none";
+        document.getElementById("mainApp").style.display = "block";
+        loadCars();
+        loadMyBookings(user.uid);
+      }).catch(() => showToast("ভুল OTP", 'error'));
     }
 
-    async function showBookingPanel(userData) {
-      document.getElementById('loginPanel').style.display = 'none';
-      document.getElementById('phonePanel').style.display = 'none';
-      document.getElementById('bookingPanel').style.display = 'block';
-      document.getElementById('userName').value = userData.name || currentUser.displayName;
-      document.getElementById('userPhone').value = userData.phone;
-      initMap();
-      loadCars();
-    }
-
-    function initMap() {
-      if (map) return;
-      map = L.map('map').setView([23.5204, 87.3119], 13);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '© OpenStreetMap'}).addTo(map);
-    }
-
+    // Load Cars
     function loadCars() {
-      const carSelect = document.getElementById('carSelect');
-      db.ref('cars').orderByChild('quantity').startAt(1).on('value', (snap) => {
-        carSelect.innerHTML = '<option value="">Select Car</option>';
-        snap.forEach(child => {
+      onValue(ref(db, 'cars'), (snap) => {
+        const grid = document.getElementById("carsGrid");
+        grid.innerHTML = "";
+        snap.forEach((child) => {
           const car = child.val();
-          carSelect.innerHTML += `<option value="${child.key}">${car.name} - ${car.driverName} (${car.quantity} available) - ₹${car.price}/km</option>`;
+          if (car.quantity > 0) {
+            grid.innerHTML += `
+              <div class="carCard">
+                <img src="${car.image}" class="carImg">
+                <div class="carInfo">
+                  <h3>${car.name}</h3>
+                  <div class="carPrice">₹${car.price}/day</div>
+                  <div class="carMeta">
+                    <span>🚗 ${car.seats} Seats</span>
+                    <span>❄️ ${car.ac}</span>
+                    <span>⛽ ${car.fuel}</span>
+                    <span>⭐ ${car.rating}</span>
+                  </div>
+                  <button class="reserveBtn" onclick="bookCar('${child.key}', '${car.name}')">Book Now</button>
+                </div>
+              </div>
+            `;
+          }
         });
       });
     }
 
-    async function searchPlace(query, suggestDiv, type) {
-      if (query.length < 3) return suggestDiv.innerHTML = '';
-      suggestDiv.innerHTML = '<div style="padding:10px;color:#666">Searching...</div>';
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&countrycodes=in&limit=20`);
-      const data = await res.json();
-      suggestDiv.innerHTML = '';
-      if (data.length === 0) {
-        suggestDiv.innerHTML = '<div style="padding:10px;color:#999">কোনো জায়গা পাওয়া যায়নি</div>';
-        return;
-      }
-      data.forEach(place => {
-        const div = document.createElement('div');
-        div.innerText = place.display_name;
-        div.onclick = () => {
-          document.getElementById(type).value = place.display_name;
-          if (type === 'pickup') pickupData = place; else dropData = place;
-          suggestDiv.innerHTML = '';
-        };
-        suggestDiv.appendChild(div);
-      });
+    // Book Car - Location Check
+    window.bookCar = async (carId, carName) => {
+      selectedCarId = carId;
+      selectedCarName = carName;
+      document.getElementById("locationBox").style.display = "flex";
     }
 
-    document.getElementById('pickup').addEventListener('input', e => searchPlace(e.target.value, document.getElementById('pickupSuggest'), 'pickup'));
-    document.getElementById('drop').addEventListener('input', e => searchPlace(e.target.value, document.getElementById('dropSuggest'), 'drop'));
-
-    async function bookRide() {
-      const carId = document.getElementById('carSelect').value;
-      const userName = document.getElementById('userName').value;
-      if (!carId) return alert("Select a car");
-      if (!pickupData || !dropData) return alert("Dropdown থেকে Location Select কর");
-      if (!userName) return alert("Enter your name");
-      document.getElementById("bookBtn").disabled = true;
-      document.getElementById("status").innerText = "Booking...";
+    // Location Confirm
+    window.confirmLocation = async () => {
+      const pickup = document.getElementById("pickupLocation").value.trim();
+      const drop = document.getElementById("dropLocation").value.trim();
       
-      const carSnap = await db.ref('cars/' + carId).once('value');
-      const car = carSnap.val();
-      if (car.quantity <= 0) {
-        alert("Sorry, এই Car এখন Available না");
-        document.getElementById("bookBtn").disabled = false;
-        return;
-      }
+      if (!pickup || !drop) return showToast('দুটো Location দে', 'error');
       
-      // Quantity কমাও + 0 হলে Delete
-      const newQty = car.quantity - 1;
-      if (newQty <= 0) {
-        await db.ref('cars/' + carId).remove();
-      } else {
-        await db.ref('cars/' + carId + '/quantity').set(newQty);
-      }
-      
-      const bookingRef = db.ref('bookings').push();
-      await bookingRef.set({
-        userId: currentUser.uid, userEmail: currentUser.email, userName: userName,
-        userPhone: document.getElementById('userPhone').value, carId: carId, carName: car.name,
-        driverName: car.driverName, driverPhone: car.driverPhone, price: car.price,
-        pickup: { address: pickupData.display_name, lat: parseFloat(pickupData.lat), lng: parseFloat(pickupData.lon) },
-        drop: { address: dropData.display_name, lat: parseFloat(dropData.lat), lng: parseFloat(dropData.lon) },
-        status: "pending", timestamp: firebase.database.ServerValue.TIMESTAMP
+      const user = auth.currentUser;
+      const bookingRef = push(ref(db, 'bookings'));
+      await set(bookingRef, {
+        userId: user.uid, 
+        carId: selectedCarId, 
+        carName: selectedCarName,
+        pickupLocation: pickup,
+        dropLocation: drop,
+        status: "pending", 
+        timestamp: Date.now()
       });
       
-      if (routeControl) map.removeControl(routeControl);
-      routeControl = L.Routing.control({
-        waypoints: [L.latLng(pickupData.lat, pickupData.lon), L.latLng(dropData.lat, dropData.lon)],
-        routeWhileDragging: false
-      }).addTo(map);
-      
-      document.getElementById("status").innerText = "Booking Confirmed! Driver: " + car.driverName;
-      document.getElementById("bookBtn").disabled = false;
+      document.getElementById("locationBox").style.display = "none";
+      document.getElementById("pickupLocation").value = '';
+      document.getElementById("dropLocation").value = '';
+      showToast('✅ Booking Done! Admin Confirm করবে');
+    }
+
+    // Load My Bookings
+    function loadMyBookings(uid) {
+      onValue(ref(db, 'bookings'), (snap) => {
+        const list = document.getElementById("myBookingsList");
+        list.innerHTML = "";
+        Object.entries(snap.val() || {}).forEach(([key, booking]) => {
+          if (booking.userId === uid) {
+            list.innerHTML += `
+              <div class="bookingCard">
+                <div>
+                  <strong>${booking.carName}</strong><br>
+                  <small>📍 ${booking.pickupLocation || 'N/A'} → ${booking.dropLocation || 'N/A'}</small><br>
+                  <small>${new Date(booking.timestamp).toLocaleString()}</small>
+                </div>
+                <span class="status ${booking.status}">${booking.status.toUpperCase()}</span>
+              </div>
+            `;
+          }
+        });
+      });
     }
   </script>
 </body>
