@@ -20,7 +20,7 @@ body { background-color: #f1f3f6; color: #212121; -webkit-tap-highlight-color: t
 .auth-card p { color: var(--text-muted); margin-bottom: 30px; font-size: 14px; }
 .google-btn { width: 100%; background: white; border: 1px solid var(--border); padding: 12px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: 0.3s; }
 .google-btn:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-.google-btn img { width: 20px; }
+.google-btn img { width: 20px !important; height: 20px !important; object-fit: contain; }
 
 /* Header */
 .app-header { background: var(--card-bg); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
