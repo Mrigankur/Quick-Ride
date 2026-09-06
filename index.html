@@ -1,124 +1,227 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>QuickRide - Book Your Car</title>
-  <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick-Ride - Book Your Car</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- 🔐 Login Screen -->
-  <div id="loginScreen" class="auth-container">
-    <div class="auth-card">
-      <h1 class="logo">🚗 QuickRide</h1>
-      <p>Sign in to book your ride</p>
-      <button id="googleLoginBtn" class="google-btn">
-        <img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" alt="Google"> 
-        Continue with Google
-      </button>
+    <!-- Auth / Login Screen -->
+    <div id="authContainer" class="auth-container">
+        <div class="auth-card">
+            <div class="logo">🚗 Quick-Ride</div>
+            <p>Sign in to book your favorite rides instantly</p>
+            <button class="google-btn" onclick="handleGoogleLogin()">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                Continue with Google
+            </button>
+        </div>
     </div>
-  </div>
 
-  <!-- 📱 Main App (Hidden before login) -->
-  <div id="mainApp" style="display: none;">
-    
-    <!-- Header -->
-    <header class="app-header">
-      <div class="logo">🚗 QuickRide</div>
-      <div class="user-profile-mini">
-        <img id="headerUserImg" src="https://via.placeholder.com/40" alt="User">
-      </div>
-    </header>
+    <!-- Main App Container -->
+    <div id="appContainer" style="display: none;">
+        <header class="app-header">
+            <div class="logo" style="margin: 0; font-size: 20px;">🚗 Quick-Ride</div>
+            <div class="user-profile-mini">
+                <img id="userMiniAvatar" src="https://via.placeholder.com/35" alt="User">
+            </div>
+        </header>
 
-    <!-- Content Area -->
-    <main class="app-content">
-      
-      <!-- 🏠 TAB 1: HOME (Available Cars) -->
-      <section id="tab-home" class="tab-section active">
-        <div class="banner">
-          <h2>Premium Rides,<br>Affordable Prices</h2>
-        </div>
-        <h3 class="section-title">Available Cars</h3>
-        <div id="carsGrid" class="cars-grid">
-          <!-- Cars will be loaded here via JS -->
-        </div>
-      </section>
+        <main class="app-content">
+            <!-- Home Tab -->
+            <section id="homeTab" class="tab-section active">
+                <div class="banner">
+                    <h2>Premium Rides,<br>Affordable Prices</h2>
+                </div>
+                <div class="section-title">Available Cars</div>
+                <div class="cars-grid" id="carsGrid"></div>
+            </section>
 
-      <!-- 📅 TAB 2: BOOKINGS (User's Orders) -->
-      <section id="tab-bookings" class="tab-section">
-        <h3 class="section-title">My Orders</h3>
-        <div id="bookingsList" class="bookings-list">
-          <!-- User Bookings will be loaded here via JS -->
-        </div>
-      </section>
+            <!-- Bookings Tab -->
+            <section id="bookingsTab" class="tab-section">
+                <div class="section-title">My Orders</div>
+                <div class="bookings-list" id="bookingsList"></div>
+            </section>
 
-      <!-- 👤 TAB 3: ACCOUNT (Profile) -->
-      <section id="tab-account" class="tab-section">
-        <div class="account-card">
-          <img id="accountUserImg" src="https://via.placeholder.com/90" alt="Profile">
-          <h2 id="accountUserName">User Name</h2>
-          <p id="accountUserEmail">user@email.com</p>
-          <button id="logoutBtn" class="logout-btn">Logout</button>
-        </div>
-      </section>
+            <!-- Account Tab -->
+            <section id="accountTab" class="tab-section">
+                <div class="account-card">
+                    <img id="userAvatar" src="https://via.placeholder.com/90" alt="User">
+                    <h2 id="userName">User Name</h2>
+                    <p id="userEmail">user@email.com</p>
+                    <button class="logout-btn" onclick="handleLogout()">Logout</button>
+                </div>
+            </section>
+        </main>
 
-    </main>
-
-    <!-- 🔽 Mobile Bottom Navigation Bar -->
-    <nav class="bottom-nav">
-      <button class="nav-item active" onclick="switchTab('home', this)">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-        <span>Home</span>
-      </button>
-      <button class="nav-item" onclick="switchTab('bookings', this)">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-        <span>Bookings</span>
-      </button>
-      <button class="nav-item" onclick="switchTab('account', this)">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-        <span>Account</span>
-      </button>
-    </nav>
-
-  </div>
-
-  <!-- 📝 Booking Modal -->
-  <div id="bookingModal" class="modal-overlay">
-    <div class="modal-card">
-      <h3>Confirm Booking</h3>
-      <p id="modalCarName" class="highlight-text"></p>
-      
-      <div class="input-group">
-        <input type="tel" id="userPhone" placeholder="📱 Phone Number (10 digits)">
-        <input type="text" id="pickupLoc" placeholder="📍 Pickup Location">
-        <input type="text" id="dropLoc" placeholder="🏁 Drop Location">
-      </div>
-      
-      <div class="payment-info">
-        <strong>💵 Cash on Delivery</strong>
-        <p>Pay offline directly to the driver after your ride.</p>
-      </div>
-
-      <div class="modal-actions">
-        <button id="cancelBookingBtn" class="btn-secondary">Cancel</button>
-        <button id="confirmBookingBtn" class="btn-primary">Confirm Booking</button>
-      </div>
+        <!-- Bottom Navigation Bar -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" onclick="switchTab('home', this)"><span>Home</span></button>
+            <button class="nav-item" onclick="switchTab('bookings', this)"><span>Bookings</span></button>
+            <button class="nav-item" onclick="switchTab('account', this)"><span>Account</span></button>
+        </nav>
     </div>
-  </div>
 
-  <!-- Load JS -->
-  <script type="module" src="app.js"></script>
-  
-  <!-- Global Tab Function -->
-  <script>
-    function switchTab(tabId, element) {
-      document.querySelectorAll('.tab-section').forEach(tab => tab.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-      document.getElementById('tab-' + tabId).classList.add('active');
-      element.classList.add('active');
-    }
-  </script>
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="modal-overlay">
+        <div class="modal-card">
+            <h3>Confirm Booking</h3>
+            <p id="modalCarName" class="highlight-text">Car Name</p>
+            <div class="input-group">
+                <input type="text" id="phoneInput" placeholder="Phone Number">
+                <input type="text" id="pickupInput" placeholder="Pickup Location">
+                <input type="text" id="dropInput" placeholder="Drop Location">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeBookingModal()">Cancel</button>
+                <button class="btn-primary" onclick="confirmBooking()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase & App Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, where, doc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBySOEfSbkpl4csyqckfX-kLeIoD-85VYs",
+            authDomain: "my-friend-hub.firebaseapp.com",
+            databaseURL: "https://my-friend-hub-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "my-friend-hub",
+            storageBucket: "my-friend-hub.firebasestorage.app",
+            messagingSenderId: "1084141933087",
+            appId: "1:1084141933087:web:1ae757acdd37a9c8427b2a",
+            measurementId: "G-6E10B7M7WZ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let selectedCarId = null;
+        let selectedCarData = null;
+
+        window.handleGoogleLogin = () => signInWithPopup(auth, new GoogleAuthProvider());
+        window.handleLogout = () => signOut(auth);
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('authContainer').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'block';
+                document.getElementById('userName').innerText = user.displayName;
+                document.getElementById('userEmail').innerText = user.email;
+                document.getElementById('userAvatar').src = user.photoURL;
+                document.getElementById('userMiniAvatar').src = user.photoURL;
+                setupRealtimeCars();
+                setupRealtimeBookings();
+            } else {
+                document.getElementById('appContainer').style.display = 'none';
+                document.getElementById('authContainer').style.display = 'flex';
+            }
+        });
+
+        function setupRealtimeCars() {
+            const carsGrid = document.getElementById('carsGrid');
+            onSnapshot(collection(db, "cars"), (snapshot) => {
+                carsGrid.innerHTML = '';
+                snapshot.forEach((docSnap) => {
+                    const car = docSnap.data();
+                    const carId = docSnap.id;
+                    carsGrid.innerHTML += `
+                        <div class="car-card">
+                            <img src="${car.image}" class="car-img" alt="Car">
+                            <div class="car-details">
+                                <div class="car-title">${car.name}</div>
+                                <div class="car-price">$${car.price}<span>/day</span></div>
+                                <p style="font-size: 13px; color: #555; margin-bottom: 8px;">Stock: <strong>${car.quantity || 1}</strong></p>
+                                <button class="book-btn" onclick="openBookingModal('${carId}', '${car.name}')">Book Now</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        window.openBookingModal = function(id, name) {
+            selectedCarId = id;
+            selectedCarData = { name };
+            document.getElementById('modalCarName').innerText = name;
+            document.getElementById('bookingModal').style.display = 'flex';
+        }
+
+        window.closeBookingModal = () => document.getElementById('bookingModal').style.display = 'none';
+
+        window.confirmBooking = async function() {
+            const phone = document.getElementById('phoneInput').value;
+            const pickup = document.getElementById('pickupInput').value;
+            const drop = document.getElementById('dropInput').value;
+
+            if(!phone || !pickup || !drop) return alert('Fill all fields!');
+
+            try {
+                await addDoc(collection(db, "bookings"), {
+                    userId: currentUser.uid,
+                    userName: currentUser.displayName,
+                    carId: selectedCarId,
+                    carName: selectedCarData.name,
+                    phone, pickup, drop,
+                    status: 'Pending',
+                    createdAt: new Date()
+                });
+
+                const carRef = doc(db, "cars", selectedCarId);
+                const carSnap = await getDoc(carRef);
+                if(carSnap.exists()) {
+                    let currentQty = carSnap.data().quantity || 1;
+                    if(currentQty > 1) {
+                        await updateDoc(carRef, { quantity: currentQty - 1 });
+                    } else {
+                        await deleteDoc(carRef); // অটো রিমুভ স্টক শেষ হলে
+                    }
+                }
+
+                alert('Booking Confirmed Successfully!');
+                closeBookingModal();
+                switchTab('bookings', document.querySelectorAll('.nav-item')[1]);
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        function setupRealtimeBookings() {
+            const bookingsList = document.getElementById('bookingsList');
+            const q = query(collection(db, "bookings"), where("userId", "==", currentUser.uid));
+            onSnapshot(q, (snapshot) => {
+                bookingsList.innerHTML = '';
+                snapshot.forEach((docSnap) => {
+                    const b = docSnap.data();
+                    bookingsList.innerHTML += `
+                        <div class="order-card">
+                            <div class="order-header">
+                                <span class="order-title">${b.carName}</span>
+                                <span class="order-status status-${b.status.toLowerCase()}">${b.status}</span>
+                            </div>
+                            <div class="order-details">
+                                <p><strong>Route:</strong> ${b.pickup} ➔ ${b.drop}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        window.switchTab = function(tabName, element) {
+            document.querySelectorAll('.tab-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            element.classList.add('active');
+        }
+    </script>
 </body>
 </html>
