@@ -1,91 +1,115 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quick-Ride - Book Your Car</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Quick-Ride - Car Rental System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f8fafc; color: #1e293b; }
+        .auth-box { display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); }
+        .auth-card { background: white; padding: 40px; border-radius: 16px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); width: 380px; }
+        .auth-card h1 { margin-bottom: 10px; color: #1e293b; font-size: 26px; }
+        .auth-card p { color: #64748b; font-size: 14px; margin-bottom: 25px; }
+        .google-btn { background: #4285F4; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-size: 16px; width: 100%; font-weight: bold; transition: 0.2s; }
+        .google-btn:hover { background: #1d4ed8; }
+        #appContainer { display: none; padding-bottom: 80px; }
+        header { background: #0f172a; color: white; padding: 18px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .container { padding: 25px; max-width: 900px; margin: 0 auto; }
+        .search-box { width: 100%; padding: 14px 18px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; margin-bottom: 20px; outline: none; background: white; }
+        .car-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+        .car-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between; }
+        .car-img { width: 100%; height: 160px; object-fit: cover; }
+        .car-details { padding: 16px; }
+        .car-title { font-size: 18px; font-weight: bold; color: #1e293b; margin-bottom: 6px; }
+        .car-price { color: #2563eb; font-weight: bold; font-size: 16px; margin-bottom: 8px; }
+        .car-meta { font-size: 13px; color: #64748b; margin-bottom: 4px; }
+        .btn { background: #2563eb; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.2s; }
+        .btn:hover { background: #1d4ed8; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; padding: 30px; border-radius: 14px; width: 90%; max-width: 420px; box-shadow: 0 20px 25px rgba(0,0,0,0.2); }
+        .modal-content input, .modal-content select { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; outline: none; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-danger { background: #ef4444; }
+        .btn-danger:hover { background: #dc2626; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-around; padding: 12px 0; z-index: 999; box-shadow: 0 -2px 5px rgba(0,0,0,0.05); }
+        .nav-item { background: none; border: none; font-size: 15px; cursor: pointer; font-weight: 600; color: #64748b; }
+        .nav-item.active { color: #2563eb; }
+        .section { display: none; }
+        .section.active { display: block; }
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; }
+        .badge-pending { background: #fef3c7; color: #d97706; }
+        .badge-confirmed { background: #d1fae5; color: #059669; }
+        .badge-cancelled { background: #fee2e2; color: #dc2626; }
+    </style>
 </head>
 <body>
 
-    <!-- Auth / Login Screen -->
-    <div id="authContainer" class="auth-container">
+    <div id="authContainer" class="auth-box">
         <div class="auth-card">
-            <div class="logo">🚗 Quick-Ride</div>
-            <p>Sign in to book your favorite rides instantly</p>
-            <button class="google-btn" onclick="handleGoogleLogin()">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-                Continue with Google
-            </button>
+            <h1>🚗 Quick-Ride</h1>
+            <p>আপনার পছন্দের গাড়িটি বুক করুন নিমেষেই</p>
+            <button class="google-btn" onclick="loginWithGoogle()">গুগল দিয়ে লগইন করুন</button>
         </div>
     </div>
 
-    <!-- Main App Container -->
-    <div id="appContainer" style="display: none;">
-        <header class="app-header">
-            <div class="logo" style="margin: 0; font-size: 20px;">🚗 Quick-Ride</div>
-            <div class="user-profile-mini">
-                <img id="userMiniAvatar" src="https://via.placeholder.com/35" alt="User">
+    <div id="appContainer">
+        <header>
+            <h2>🚗 Quick-Ride</h2>
+            <div>
+                <span id="adminLink" style="margin-right: 15px; display: none;"><a href="admin.html" style="color: #38bdf8; text-decoration: none; font-weight: bold;">অ্যাডমিন প্যানেল</a></span>
+                <span id="headerUserName" style="font-size: 14px; font-weight: 500;"></span>
             </div>
         </header>
 
-        <main class="app-content">
-            <!-- Home Tab -->
-            <section id="homeTab" class="tab-section active">
-                <div class="banner">
-                    <h2>Premium Rides,<br>Affordable Prices</h2>
+        <div class="container">
+            <div id="homeSection" class="section active">
+                <input type="text" id="searchInput" class="search-box" placeholder="গাড়ির নাম দিয়ে সার্চ করুন..." onkeyup="filterCars()">
+                <div id="carsGrid" class="car-grid"></div>
+            </div>
+
+            <div id="bookingsSection" class="section">
+                <h2 style="margin-bottom: 15px;">আমার বুকিং ইতিহাস</h2>
+                <div id="myBookingsList"></div>
+            </div>
+
+            <div id="accountSection" class="section">
+                <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.04);">
+                    <h3 style="margin-bottom: 15px;">প্রোফাইল বিবরণ</h3>
+                    <p id="accName" style="margin-bottom: 8px; font-weight: 500;"></p>
+                    <p id="accEmail" style="margin-bottom: 20px; color: #64748b;"></p>
+                    <button class="btn btn-danger" onclick="logoutUser()" style="width: auto; padding: 10px 20px;">লগআউট করুন</button>
                 </div>
-                <div class="section-title">Available Cars</div>
-                <div class="cars-grid" id="carsGrid"></div>
-            </section>
+            </div>
+        </div>
 
-            <!-- Bookings Tab -->
-            <section id="bookingsTab" class="tab-section">
-                <div class="section-title">My Orders</div>
-                <div class="bookings-list" id="bookingsList"></div>
-            </section>
-
-            <!-- Account Tab -->
-            <section id="accountTab" class="tab-section">
-                <div class="account-card">
-                    <img id="userAvatar" src="https://via.placeholder.com/90" alt="User">
-                    <h2 id="userName">User Name</h2>
-                    <p id="userEmail">user@email.com</p>
-                    <button class="logout-btn" onclick="handleLogout()">Logout</button>
-                </div>
-            </section>
-        </main>
-
-        <!-- Bottom Navigation Bar -->
-        <nav class="bottom-nav">
-            <button class="nav-item active" onclick="switchTab('home', this)"><span>Home</span></button>
-            <button class="nav-item" onclick="switchTab('bookings', this)"><span>Bookings</span></button>
-            <button class="nav-item" onclick="switchTab('account', this)"><span>Account</span></button>
-        </nav>
+        <div class="bottom-nav">
+            <button class="nav-item active" onclick="switchTab('home', this)">হোম</button>
+            <button class="nav-item" onclick="switchTab('bookings', this)">বুকিং</button>
+            <button class="nav-item" onclick="switchTab('account', this)">অ্যাকাউন্ট</button>
+        </div>
     </div>
 
-    <!-- Booking Modal -->
-    <div id="bookingModal" class="modal-overlay">
-        <div class="modal-card">
-            <h3>Confirm Booking</h3>
-            <p id="modalCarName" class="highlight-text">Car Name</p>
-            <div class="input-group">
-                <input type="text" id="phoneInput" placeholder="Phone Number">
-                <input type="text" id="pickupInput" placeholder="Pickup Location">
-                <input type="text" id="dropInput" placeholder="Drop Location">
-            </div>
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle" style="margin-bottom: 15px;">বুকিং ফর্ম</h3>
+            <input type="text" id="userPhone" placeholder="আপনার ফোন নম্বর (যেমন: 017xxxxxxxx)">
+            <input type="text" id="pickupLocation" placeholder="পিকআপ লোকেশন (যেমন: গুলশান)">
+            <input type="text" id="dropLocation" placeholder="ড্রপ লোকেশন (যেমন: এয়ারপোর্ট)">
+            <select id="paymentMethod">
+                <option value="Cash on Delivery">ক্যাশ অন ডেলিভারি (Cash on Delivery)</option>
+            </select>
             <div class="modal-actions">
-                <button class="btn-secondary" onclick="closeBookingModal()">Cancel</button>
-                <button class="btn-primary" onclick="confirmBooking()">Confirm</button>
+                <button class="btn btn-danger" onclick="closeModal()">বাতিল</button>
+                <button class="btn" onclick="confirmBooking()">বুক কনফার্ম করুন</button>
             </div>
         </div>
     </div>
 
-    <!-- Firebase & App Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, where, doc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getDatabase, ref, onValue, push, update, remove, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBySOEfSbkpl4csyqckfX-kLeIoD-85VYs",
@@ -100,128 +124,173 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app);
+        const db = getDatabase(app);
 
         let currentUser = null;
-        let selectedCarId = null;
+        let selectedCarKey = null;
         let selectedCarData = null;
+        let allCarsData = {};
 
-        window.handleGoogleLogin = () => signInWithPopup(auth, new GoogleAuthProvider());
-        window.handleLogout = () => signOut(auth);
+        window.loginWithGoogle = () => signInWithPopup(auth, new GoogleAuthProvider()).catch(e => alert(e.message));
+        window.logoutUser = () => signOut(auth);
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
                 document.getElementById('authContainer').style.display = 'none';
                 document.getElementById('appContainer').style.display = 'block';
-                document.getElementById('userName').innerText = user.displayName;
-                document.getElementById('userEmail').innerText = user.email;
-                document.getElementById('userAvatar').src = user.photoURL;
-                document.getElementById('userMiniAvatar').src = user.photoURL;
-                setupRealtimeCars();
-                setupRealtimeBookings();
+                document.getElementById('headerUserName').innerText = user.displayName;
+                document.getElementById('accName').innerText = "নাম: " + user.displayName;
+                document.getElementById('accEmail').innerText = "ইমেইল: " + user.email;
+
+                if (user.email === 'khasbaskhalisa@gmail.com' || user.email === 'joyrupsaha2012@gmail.com') {
+                    document.getElementById('adminLink').style.display = 'inline';
+                }
+
+                update(ref(db, 'users/' + user.uid), { name: user.displayName, email: user.email });
+                loadCars();
+                loadMyBookings();
             } else {
                 document.getElementById('appContainer').style.display = 'none';
                 document.getElementById('authContainer').style.display = 'flex';
             }
         });
 
-        function setupRealtimeCars() {
-            const carsGrid = document.getElementById('carsGrid');
-            onSnapshot(collection(db, "cars"), (snapshot) => {
-                carsGrid.innerHTML = '';
-                snapshot.forEach((docSnap) => {
-                    const car = docSnap.data();
-                    const carId = docSnap.id;
-                    carsGrid.innerHTML += `
-                        <div class="car-card">
-                            <img src="${car.image}" class="car-img" alt="Car">
-                            <div class="car-details">
-                                <div class="car-title">${car.name}</div>
-                                <div class="car-price">$${car.price}<span>/day</span></div>
-                                <p style="font-size: 13px; color: #555; margin-bottom: 8px;">Stock: <strong>${car.quantity || 1}</strong></p>
-                                <button class="book-btn" onclick="openBookingModal('${carId}', '${car.name}')">Book Now</button>
-                            </div>
-                        </div>
-                    `;
-                });
+        function loadCars() {
+            onValue(ref(db, 'cars'), (snapshot) => {
+                const grid = document.getElementById('carsGrid');
+                grid.innerHTML = '';
+                if (!snapshot.exists()) {
+                    grid.innerHTML = '<p>কোনো গাড়ি পাওয়া যায়নি।</p>';
+                    return;
+                }
+                allCarsData = snapshot.val();
+                renderCars(allCarsData);
             });
         }
 
-        window.openBookingModal = function(id, name) {
-            selectedCarId = id;
-            selectedCarData = { name };
-            document.getElementById('modalCarName').innerText = name;
-            document.getElementById('bookingModal').style.display = 'flex';
-        }
-
-        window.closeBookingModal = () => document.getElementById('bookingModal').style.display = 'none';
-
-        window.confirmBooking = async function() {
-            const phone = document.getElementById('phoneInput').value;
-            const pickup = document.getElementById('pickupInput').value;
-            const drop = document.getElementById('dropInput').value;
-
-            if(!phone || !pickup || !drop) return alert('Fill all fields!');
-
-            try {
-                await addDoc(collection(db, "bookings"), {
-                    userId: currentUser.uid,
-                    userName: currentUser.displayName,
-                    carId: selectedCarId,
-                    carName: selectedCarData.name,
-                    phone, pickup, drop,
-                    status: 'Pending',
-                    createdAt: new Date()
-                });
-
-                const carRef = doc(db, "cars", selectedCarId);
-                const carSnap = await getDoc(carRef);
-                if(carSnap.exists()) {
-                    let currentQty = carSnap.data().quantity || 1;
-                    if(currentQty > 1) {
-                        await updateDoc(carRef, { quantity: currentQty - 1 });
-                    } else {
-                        await deleteDoc(carRef); // অটো রিমুভ স্টক শেষ হলে
-                    }
-                }
-
-                alert('Booking Confirmed Successfully!');
-                closeBookingModal();
-                switchTab('bookings', document.querySelectorAll('.nav-item')[1]);
-            } catch(e) {
-                console.error(e);
+        function renderCars(cars) {
+            const grid = document.getElementById('carsGrid');
+            grid.innerHTML = '';
+            for (let key in cars) {
+                const car = cars[key];
+                grid.innerHTML += `
+                    <div class="car-card">
+                        <img src="${car.image || 'https://via.placeholder.com/250'}" class="car-img" alt="Car">
+                        <div class="car-details">
+                            <div class="car-title">${car.name}</div>
+                            <div class="car-price">$${car.price} / দিন</div>
+                            <div class="car-meta">সিট: ${car.seats} | এসি: ${car.ac ? 'হ্যাঁ' : 'না'}</div>
+                            <div class="car-meta">স্টক: <strong>${car.quantity}</strong></div>
+                            <div class="car-meta" style="margin-bottom: 10px;">ড্রাইভার: ${car.driverName}</div>
+                            <button class="btn" onclick="openModal('${key}', '${car.name}', ${car.quantity})">বুক করুন</button>
+                        </div>
+                    </div>
+                `;
             }
         }
 
-        function setupRealtimeBookings() {
-            const bookingsList = document.getElementById('bookingsList');
-            const q = query(collection(db, "bookings"), where("userId", "==", currentUser.uid));
-            onSnapshot(q, (snapshot) => {
-                bookingsList.innerHTML = '';
-                snapshot.forEach((docSnap) => {
-                    const b = docSnap.data();
-                    bookingsList.innerHTML += `
-                        <div class="order-card">
-                            <div class="order-header">
-                                <span class="order-title">${b.carName}</span>
-                                <span class="order-status status-${b.status.toLowerCase()}">${b.status}</span>
+        window.filterCars = () => {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            let filtered = {};
+            for (let key in allCarsData) {
+                if (allCarsData[key].name.toLowerCase().includes(query)) {
+                    filtered[key] = allCarsData[key];
+                }
+            }
+            renderCars(filtered);
+        };
+
+        window.openModal = (key, name, qty) => {
+            selectedCarKey = key;
+            selectedCarData = { name, qty };
+            document.getElementById('modalTitle').innerText = name + " বুকিং";
+            document.getElementById('bookingModal').style.display = 'flex';
+        };
+
+        window.closeModal = () => document.getElementById('bookingModal').style.display = 'none';
+
+        window.confirmBooking = async () => {
+            const phone = document.getElementById('userPhone').value;
+            const pickup = document.getElementById('pickupLocation').value;
+            const drop = document.getElementById('dropLocation').value;
+            const paymentMethod = document.getElementById('paymentMethod').value;
+
+            if (!phone || !pickup || !drop) {
+                alert('অনুগ্রহ করে সব তথ্য পূরণ করুন!');
+                return;
+            }
+
+            const bookingData = {
+                userId: currentUser.uid,
+                userName: currentUser.displayName,
+                userPhone: phone,
+                carId: selectedCarKey,
+                carName: selectedCarData.name,
+                pickupLocation: pickup,
+                dropLocation: drop,
+                status: 'pending',
+                paymentMethod: paymentMethod,
+                timestamp: Date.now()
+            };
+
+            try {
+                await push(ref(db, 'bookings'), bookingData);
+
+                const carRef = ref(db, 'cars/' + selectedCarKey);
+                const snap = await get(carRef);
+                if (snap.exists()) {
+                    let currentQty = snap.val().quantity || 1;
+                    if (currentQty > 1) {
+                        await update(carRef, { quantity: currentQty - 1 });
+                    } else {
+                        await remove(carRef);
+                    }
+                }
+
+                alert('বুকিং সফলভাবে সম্পন্ন হয়েছে!');
+                closeModal();
+                switchTab('bookings', document.querySelectorAll('.nav-item')[1]);
+            } catch (e) {
+                alert('ত্রুটি: ' + e.message);
+            }
+        };
+
+        function loadMyBookings() {
+            onValue(ref(db, 'bookings'), (snapshot) => {
+                const list = document.getElementById('myBookingsList');
+                list.innerHTML = '';
+                let found = false;
+                snapshot.forEach((child) => {
+                    const b = child.val();
+                    if (b.userId === currentUser.uid) {
+                        found = true;
+                        list.innerHTML += `
+                            <div style="background: white; padding: 18px; border-radius: 10px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <h4 style="margin-bottom: 5px; color: #1e293b;">${b.carName}</h4>
+                                    <p style="font-size: 13px; color: #64748b; margin-bottom: 3px;">রুট: ${b.pickupLocation} ➔ ${b.dropLocation}</p>
+                                    <p style="font-size: 13px; color: #64748b;">ফোন: ${b.userPhone}</p>
+                                </div>
+                                <div>
+                                    <span class="badge badge-${b.status}">${b.status.toUpperCase()}</span>
+                                </div>
                             </div>
-                            <div class="order-details">
-                                <p><strong>Route:</strong> ${b.pickup} ➔ ${b.drop}</p>
-                            </div>
-                        </div>
-                    `;
+                        `;
+                    }
                 });
+                if (!found) {
+                    list.innerHTML = '<p>আপনার কোনো বুকিং নেই।</p>';
+                }
             });
         }
 
-        window.switchTab = function(tabName, element) {
-            document.querySelectorAll('.tab-section').forEach(sec => sec.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-            document.getElementById(tabName + 'Tab').classList.add('active');
-            element.classList.add('active');
-        }
+        window.switchTab = (name, btn) => {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            document.getElementById(name + 'Section').classList.add('active');
+            btn.classList.add('active');
+        };
     </script>
 </body>
 </html>
